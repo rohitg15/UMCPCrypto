@@ -15,13 +15,13 @@ def get_hamming_distance(b1, b2):
     return count_diff_bits
 
 def get_score(plaintext):
-    charset_lower = 'abcdefghijklmnopqrstuvwxyz '
+    charset_lower = "abcdefghijklmnopqrstuvwxyz "
     charset_upper = charset_lower.upper()
-    spaces = ' \t\n,\'"'
+    spaces = ",.;?!:-`'"
 
     score = 0
     for ch in plaintext:
-        if ch in charset_lower or ch in charset_upper or ch in spaces:
+        if (ch in charset_lower) or (ch in charset_upper) or (ch in spaces):
             score = score + 1
     return score * 1.0/len(plaintext)
 
@@ -35,10 +35,10 @@ def brute_single_key_xor(ciphertext):
 
     #print "ciphertext:" + ciphertext
     best_key = -1
-    for w in sorted(table, key = lambda p : table[p][0], reverse = True):
-        print "score:" + str(table[w][0]) , "key byte:" + hex(table[w][1])
-        if best_key == -1:
-            best_key = chr(table[w][1])
+    for w in sorted(table, key = lambda p : table[p][0], reverse = True)[:-1]:
+        if table[w][1] == 186:
+            print table[w][1] , table[w][0]
+        best_key = chr(table[w][1])
     return best_key
 
         
@@ -53,6 +53,12 @@ def transpose(ciphertext, key_size):
             block = block + ciphertext[i]
             i = i + key_size
         cols.append(block)
+       # pt = ''.join([chr((ord(ch) ^ 186) & 0xFF) for ch in block])
+       # print "score:", get_score(pt)
+       # print pt
+       # print "size of block %d : %d " % (start, len(block)) 
+
+    #print "num cols:" , len(cols)
     return cols
          
 
@@ -83,6 +89,7 @@ def crack_vigenere(ciphertext):
         for col in bcols:
             col_key = brute_single_key_xor(col)
             if col_key != -1:
+                print "col key:" , str(ord(col_key))
                 cipher_key = cipher_key + col_key
             else:
                 print "column:" + col
